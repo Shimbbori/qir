@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반도체 막질 계측 & 광학 파장 이론 종합 가이드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .smooth-scroll { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row smooth-scroll">
+
+    <!-- 사이드바 네비게이션 -->
+    <aside class="w-full md:w-72 bg-slate-950 border-r border-slate-800 p-6 flex-shrink-0 md:sticky md:top-0 md:h-screen overflow-y-auto">
+        <div class="flex items-center space-x-3 mb-8">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center font-bold text-slate-950">IR</div>
+            <div>
+                <h1 class="font-bold text-lg text-white leading-tight">광학 & 계측 가이드</h1>
+                <p class="text-xs text-slate-400">Semiconductor Metrology</p>
+            </div>
+        </div>
+
+        <nav class="space-y-1 text-sm font-medium">
+            <a href="#sec-laser" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">1. 빛 vs 레이저</a>
+            <a href="#sec-wavelength" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">2. 파장과 전자기파</a>
+            <a href="#sec-wavenumber" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">3. 파장 vs 파수</a>
+            <a href="#sec-ir-metrology" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">4. IR 반도체 막질 계측</a>
+            <a href="#sec-qir" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">5. QIR (Model-based IR)</a>
+            <a href="#sec-se-vs-ir" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">6. SE vs IR 비교</a>
+            <a href="#sec-thick-film" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">7. IR 두껍 막 측정 원리</a>
+        </nav>
+
+        <div class="mt-8 pt-6 border-t border-slate-800 text-xs text-slate-500">
+            <p>마지막 업데이트: 2026.10</p>
+            <p class="mt-1">대화 요약 지식 베이스</p>
+        </div>
+    </aside>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="flex-1 p-6 md:p-12 max-w-5xl mx-auto space-y-16">
+
+        <!-- Header Banner -->
+        <header class="border-b border-slate-800 pb-8">
+            <span class="px-3 py-1 bg-cyan-950 text-cyan-400 border border-cyan-800 text-xs font-semibold rounded-full uppercase tracking-wider">Metrology Knowledge Base</span>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white mt-4 tracking-tight">빛의 광학 성질부터 QIR / SE 반도체 계측까지 총정리</h1>
+            <p class="text-slate-400 mt-2 text-lg">빛의 물리적 특성, IR 분광학, QIR 스펙트럼 해석 및 Ellipsometry와의 계측 장단점 비교</p>
+        </header>
+
+        <!-- Section 1: 빛 vs 레이저 -->
+        <section id="sec-laser" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-cyan-400">01.</span>
+                <h2 class="text-2xl font-bold text-white">빛과 레이저의 차이</h2>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+                레이저도 빛의 일종이지만, 일반 빛(햇빛, 전구)과 달리 <strong>빛의 파동이 질서정연하게 정렬된 특별한 상태</strong>의 광원입니다.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700/50">
+                    <h3 class="font-semibold text-cyan-300 text-base mb-2">1. 단색성 (Monochromatic)</h3>
+                    <p class="text-sm text-slate-300">일반 빛은 여러 색(파장)이 섞여 있으나, 레이저는 단 하나의 정밀한 파장만 가집니다.</p>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700/50">
+                    <h3 class="font-semibold text-cyan-300 text-base mb-2">2. 직진성 (Directionality)</h3>
+                    <p class="text-sm text-slate-300">사방으로 퍼지지 않고 한 방향으로 곧게 나아가 멀리 가도 스폿 크기가 잘 퍼지지 않습니다.</p>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700/50">
+                    <h3 class="font-semibold text-cyan-300 text-base mb-2">3. 간섭성 / 결맞음 (Coherence)</h3>
+                    <p class="text-sm text-slate-300">모든 빛의 파동 위상이 맞춰져 있어 작은 면적에 에너지를 극도로 집속시킬 수 있습니다.</p>
+                </div>
+            </div>
+
+            <!-- Table Comparison -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left border-collapse bg-slate-800/40 rounded-xl overflow-hidden border border-slate-700">
+                    <thead class="bg-slate-800 text-cyan-400 uppercase text-xs">
+                        <tr>
+                            <th class="p-3.5 border-b border-slate-700">구분</th>
+                            <th class="p-3.5 border-b border-slate-700">일반 빛 (자연광/전구)</th>
+                            <th class="p-3.5 border-b border-slate-700">레이저 (LASER)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50 text-slate-300">
+                        <tr>
+                            <td class="p-3.5 font-medium text-white">파장 구성</td>
+                            <td class="p-3.5">다채로운 파장 혼합 (백색광)</td>
+                            <td class="p-3.5">단일 파장 (단색광)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-medium text-white">진행 방향</td>
+                            <td class="p-3.5">사방으로 퍼짐 (발산)</td>
+                            <td class="p-3.5">한 방향으로 직진 (고지향성)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-medium text-white">주요 용도</td>
+                            <td class="p-3.5">조명, 디스플레이, 식물 광합성</td>
+                            <td class="p-3.5">정밀 측정, 수술, 산업 가공, 광통신</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 2: 파장과 전자기파 스펙트럼 -->
+        <section id="sec-wavelength" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-cyan-400">02.</span>
+                <h2 class="text-2xl font-bold text-white">빛의 파장(Wavelength)과 전자기파 스펙트럼</h2>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+                <strong>Wavelength(파장, &lambda;)</strong>은 파동이 1회 출렁일 때의 길이입니다. 파장에 따라 빛의 에너지와 물성이 정해집니다.
+            </p>
+
+            <!-- Spectrum Interactive Graphic -->
+            <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-4">
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">전자기파 스펙트럼 파장 대역</h3>
+                <div class="h-12 w-full rounded-lg flex overflow-hidden font-bold text-xs text-slate-950 text-center items-center">
+                    <div class="bg-purple-600 h-full flex items-center justify-center flex-1 text-white">감마선</div>
+                    <div class="bg-indigo-500 h-full flex items-center justify-center flex-1 text-white">X선</div>
+                    <div class="bg-blue-400 h-full flex items-center justify-center flex-1">UV</div>
+                    <div class="bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500 h-full flex-[2] flex items-center justify-center text-slate-950">가시광선</div>
+                    <div class="bg-red-600 h-full flex items-center justify-center flex-[2] text-white">적외선(IR)</div>
+                    <div class="bg-amber-600 h-full flex items-center justify-center flex-[2] text-white">마이크로파</div>
+                    <div class="bg-slate-600 h-full flex items-center justify-center flex-[2] text-white">라디오파</div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400 px-1">
+                    <span>&larr; 짧은 파장 (고에너지, 고진동수)</span>
+                    <span>긴 파장 (저에너지, 높은 투과력) &rarr;</span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/40">
+                    <span class="text-xs font-bold text-blue-400 uppercase">자외선 (UV | 10~400nm)</span>
+                    <p class="mt-1 text-slate-300">EUV 노광 공정에 활용. 파장이 짧아 초미세 박막 분석 및 리소그래피에 사용.</p>
+                </div>
+                <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/40">
+                    <span class="text-xs font-bold text-green-400 uppercase">가시광선 (Visible | 380~750nm)</span>
+                    <p class="mt-1 text-slate-300">인간 눈으로 볼 수 있는 영역. 일반적인 SE(Ellipsometry) 계측 장비의 주 파장대.</p>
+                </div>
+                <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/40">
+                    <span class="text-xs font-bold text-red-400 uppercase">적외선 (IR | 750nm~1mm)</span>
+                    <p class="mt-1 text-slate-300">분자 진동 에너지 대역. Si 기판을 투과하며 박막 화학결합 및 두께 분석에 핵심적.</p>
+                </div>
+                <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/40">
+                    <span class="text-xs font-bold text-amber-400 uppercase">마이크로파 / 라디오파</span>
+                    <p class="mt-1 text-slate-300">Wi-Fi, 통신 및 레이더에 활용되는 매우 긴 파장대.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: 파장 vs 파수 -->
+        <section id="sec-wavenumber" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-cyan-400">03.</span>
+                <h2 class="text-2xl font-bold text-white">파장(Wavelength) vs 파수(Wavenumber)</h2>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+                파장과 파수는 파동을 바라보는 관점이 완전히 반대인 개념입니다.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                    <div class="text-cyan-400 font-bold text-lg mb-2">파장 (&lambda;, Wavelength)</div>
+                    <p class="text-sm text-slate-300 mb-3">파동 <strong>1개가 차지하는 길이</strong> (m, nm, &mu;m)</p>
+                    <ul class="text-xs text-slate-400 space-y-1">
+                        <li>&bull; 에너지에 <strong>반비례</strong>합니다.</li>
+                        <li>&bull; 파장이 길수록 에너지는 낮아집니다.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                    <div class="text-cyan-400 font-bold text-lg mb-2">파수 (&bar;&nu;, Wavenumber)</div>
+                    <p class="text-sm text-slate-300 mb-3">단위 길이(1cm) 안에 들어가는 <strong>파동의 개수</strong> (cm<sup>-1</sup>)</p>
+                    <ul class="text-xs text-slate-400 space-y-1">
+                        <li>&bull; 수식: &bar;&nu; = 1 / &lambda;</li>
+                        <li>&bull; 에너지에 <strong>정비례</strong>하므로 IR 분광학 스펙트럼 x축으로 즐겨 사용됩니다.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: IR 반도체 막질 계측 장점 (쉬운 비유 포함) -->
+        <section id="sec-ir-metrology" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-cyan-400">04.</span>
+                <h2 class="text-2xl font-bold text-white">IR 적외선 기반 반도체 막질 계측의 장점</h2>
+            </div>
+
+            <!-- 쉬운 설명 카드 -->
+            <div class="bg-gradient-to-r from-cyan-950 to-slate-900 p-6 rounded-2xl border border-cyan-800/50 space-y-3">
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider">💡 중학생도 이해하는 쉬운 비유</span>
+                <h3 class="text-lg font-bold text-white">분자들의 악기 연주 & 음성 지문</h3>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    박막 안의 Si-O, Si-N, Si-H 화학 결합들은 저마다 좋아하는 춤/진동 박자(고유 에너지)가 있습니다. 적외선 빛을 쬐어주면 결합에 맞는 박자의 빛만 쏙 흡수해 버립니다.
+                    사라진 빛의 위치(파수)를 보면 <strong>무슨 성분(Si-O/Si-N 등)</strong>인지 알 수 있고, 얼마나 많이 사라졌는지를 보면 <strong>성분 농도 및 수소 함량</strong>을 알아낼 수 있습니다!
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="bg-slate-800/40 p-5 rounded-xl border border-slate-700">
+                    <h4 class="font-bold text-cyan-300 mb-1">1. 화학 결합 & 조성 분석</h4>
+                    <p class="text-slate-300 text-xs leading-relaxed">SiO₂, SiN, Low-k 막 내 분자 결합 상태 정밀 파악.</p>
+                </div>
+                <div class="bg-slate-800/40 p-5 rounded-xl border border-slate-700">
+                    <h4 class="font-bold text-cyan-300 mb-1">2. 수소(H) 불순물 정량화</h4>
+                    <p class="text-slate-300 text-xs leading-relaxed">Si-H, N-H 피크 면적 분석으로 막 밀도 및 스트레스 추정.</p>
+                </div>
+                <div class="bg-slate-800/40 p-5 rounded-xl border border-slate-700">
+                    <h4 class="font-bold text-cyan-300 mb-1">3. Si 기판 비파괴 투과</h4>
+                    <p class="text-slate-300 text-xs leading-relaxed">실리콘 기판을 적외선이 투과하므로 웨이퍼 손상 없이 계면 분석 가능.</p>
+                </div>
+                <div class="bg-slate-800/40 p-5 rounded-xl border border-slate-700">
+                    <h4 class="font-bold text-cyan-300 mb-1">4. 자유 전하(Free Carrier) 분석</h4>
+                    <p class="text-slate-300 text-xs leading-relaxed">Drude 모델 기반 비접촉 방식의 면저항 및 도핑 농도 측정.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: QIR (Quantum IR / Model-based IR) -->
+        <section id="sec-qir" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-cyan-400">05.</span>
+                <h2 class="text-2xl font-bold text-white">Quantum IR (QIR) & MBIR 스펙트럼 해석</h2>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+                QIR 장비는 <strong>Model-based IR Reflectometry (MBIR)</strong> 방식을 사용하여 측정된 반사율 스펙트럼에 광학 물리 모델을 피팅, **두께($d$)**와 **소멸계수($k$)**를 одновременно 도출합니다.
+            </p>
+
+            <!-- SVG Diagram for QIR Spectrum -->
+            <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-semibold text-cyan-400">QIR Spectrum 결과 그래프 대표 예시</h3>
+                    <span class="text-xs text-slate-500">X축: Wavenumber [cm⁻¹] | Y축: Reflectivity [%]</span>
+                </div>
+
+                <div class="w-full overflow-x-auto">
+                    <svg viewBox="0 0 800 380" class="w-full h-auto text-xs" font-family="sans-serif">
+                        <!-- Grid lines -->
+                        <line x1="60" y1="40" x2="760" y2="40" stroke="#334155" stroke-dasharray="4" />
+                        <line x1="60" y1="110" x2="760" y2="110" stroke="#334155" stroke-dasharray="4" />
+                        <line x1="60" y1="180" x2="760" y2="180" stroke="#334155" stroke-dasharray="4" />
+                        <line x1="60" y1="250" x2="760" y2="250" stroke="#334155" stroke-dasharray="4" />
+
+                        <!-- Axes -->
+                        <line x1="60" y1="300" x2="760" y2="300" stroke="#94a3b8" stroke-width="2" />
+                        <line x1="60" y1="30" x2="60" y2="300" stroke="#94a3b8" stroke-width="2" />
+
+                        <!-- Y-Axis Labels (Reflectivity %) -->
+                        <text x="50" y="45" fill="#94a3b8" text-anchor="end">100%</text>
+                        <text x="50" y="115" fill="#94a3b8" text-anchor="end">75%</text>
+                        <text x="50" y="185" fill="#94a3b8" text-anchor="end">50%</text>
+                        <text x="50" y="255" fill="#94a3b8" text-anchor="end">25%</text>
+                        <text x="20" y="160" fill="#38bdf8" font-weight="bold" transform="rotate(-90 20 160)">Y축: 반사율 (Reflectivity / %)</text>
+
+                        <!-- X-Axis Labels (Wavenumber cm^-1) -->
+                        <text x="60" y="325" fill="#94a3b8" text-anchor="middle">4000</text>
+                        <text x="235" y="325" fill="#94a3b8" text-anchor="middle">3000</text>
+                        <text x="410" y="325" fill="#94a3b8" text-anchor="middle">2000</text>
+                        <text x="585" y="325" fill="#94a3b8" text-anchor="middle">1000</text>
+                        <text x="760" y="325" fill="#94a3b8" text-anchor="middle">400</text>
+                        <text x="410" y="355" fill="#38bdf8" font-weight="bold" text-anchor="middle">X축: 파수 (Wavenumber) [cm⁻¹]</text>
+
+                        <!-- Spectrum Curve (Fringe + Absorptions) -->
+                        <path d="M 60 100 
+                                 Q 70 60, 80 100 T 100 100 T 120 100 T 140 100 T 160 100 T 180 100 T 200 100
+                                 T 220 100 T 240 100 T 260 100 T 280 100 T 300 100 T 320 100 T 340 100 T 360 100
+                                 Q 375 220, 390 100 
+                                 T 410 100 T 430 100 T 450 100 T 470 100 T 490 100 T 510 100 T 530 100 T 550 100
+                                 Q 570 280, 590 100
+                                 T 610 100 T 630 100 T 650 100 T 670 100 T 690 100 T 710 100 T 730 100 L 760 100" 
+                              fill="none" stroke="#38bdf8" stroke-width="2.5" />
+
+                        <!-- Annotations -->
+                        <!-- Fringe -->
+                        <rect x="110" y="45" width="130" height="30" rx="6" fill="#0369a1" fill-opacity="0.8" />
+                        <text x="175" y="65" fill="#ffffff" font-weight="bold" text-anchor="middle">간섭 무늬 &rarr; 두께(d)</text>
+                        <line x1="175" y1="75" x2="175" y2="95" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="2" />
+
+                        <!-- Si-H Peak -->
+                        <rect x="330" y="240" width="120" height="30" rx="6" fill="#b91c1c" fill-opacity="0.8" />
+                        <text x="390" y="260" fill="#ffffff" font-weight="bold" text-anchor="middle">Si-H 결합 흡수</text>
+                        <line x1="390" y1="235" x2="390" y2="185" stroke="#f87171" stroke-width="1.5" stroke-dasharray="2" />
+
+                        <!-- Si-O Peak -->
+                        <rect x="530" y="300" width="120" height="30" rx="6" fill="#b91c1c" fill-opacity="0.8" />
+                        <text x="590" y="320" fill="#ffffff" font-weight="bold" text-anchor="middle">Si-O 결합 흡수</text>
+                        <line x1="590" y1="295" x2="590" y2="250" stroke="#f87171" stroke-width="1.5" stroke-dasharray="2" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: SE vs IR 비교 -->
+        <section id="sec-se-vs-ir" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-cyan-400">06.</span>
+                <h2 class="text-2xl font-bold text-white">SE(Spectroscopic Ellipsometry) vs IR 계측 비교</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left border-collapse bg-slate-800/40 rounded-xl overflow-hidden border border-slate-700">
+                    <thead class="bg-slate-800 text-cyan-400 uppercase text-xs">
+                        <tr>
+                            <th class="p-3.5 border-b border-slate-700">구분</th>
+                            <th class="p-3.5 border-b border-slate-700">SE 방식 (UV ~ Visible)</th>
+                            <th class="p-3.5 border-b border-slate-700">IR 방식 (QIR, FT-IR 등)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50 text-slate-300">
+                        <tr>
+                            <td class="p-3.5 font-medium text-white">사용 파장</td>
+                            <td class="p-3.5">자외선 ~ 가시광선 (190~800nm)</td>
+                            <td class="p-3.5">적외선 대역 (2.5~25&mu;m)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-medium text-white">측정 강점</td>
+                            <td class="p-3.5 text-emerald-400 font-semibold">초박막 (&Aring; 단위 ~ 수백 nm) 고정밀 측정</td>
+                            <td class="p-3.5 text-cyan-400 font-semibold">두꺼운 막질 + 화학 결합/조성 동시 분석</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-medium text-white">물성 정보</td>
+                            <td class="p-3.5">광학 상수 ($n, k$), 밴드갭, 결정성</td>
+                            <td class="p-3.5">화학 결합(Si-O, Si-N 등), 수소 함량, Free Carrier</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-medium text-white">한계점</td>
+                            <td class="p-3.5">화학 결합 분자 정보 파악 불가</td>
+                            <td class="p-3.5">5nm 이하 초박막 영역 감도 저하</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 7: IR 두꺼운 막질 측정 원리 -->
+        <section id="sec-thick-film" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-cyan-400">07.</span>
+                <h2 class="text-2xl font-bold text-white">IR이 두꺼운 박막을 측정할 수 있는 이유</h2>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+                적외선은 자외선/가시광선에 비해 <strong>파장이 길기(Long Wavelength)</strong> 때문입니다.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                    <h3 class="font-bold text-cyan-300 mb-2">1. 우수한 투과력</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">큰 파동처럼 장애물을 부딪치지 않고 지나가 수 &mu;m 이상의 두꺼운 막질 밑바닥 계면까지 도달합니다.</p>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                    <h3 class="font-bold text-cyan-300 mb-2">2. 간섭 무늬 해상도</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">두꺼운 막에서도 간섭 파동이 너무 촘촘해지지 않고 읽기 적당한 간격으로 형성됩니다.</p>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                    <h3 class="font-bold text-cyan-300 mb-2">3. 산란 손실 감소</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">레일리 산란량은 파장의 4제곱에 반비례(&propto; 1/&lambda;⁴)하므로, 빛의 에너지 손실 없이 직선으로 되돌아옵니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-slate-800 pt-8 text-center text-xs text-slate-500">
+            <p>© Semiconductor Optical Metrology Reference Guide. Generated for Study & Archive.</p>
+        </footer>
+
+    </main>
+</body>
+</html>
